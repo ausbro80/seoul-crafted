@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Gaegu, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { AdminHeader } from "@/components/admin-header";
-
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -42,15 +38,7 @@ export default function RootLayout({
       lang="en"
       className={`${jakarta.variable} ${gaegu.variable} ${notoSerifKR.variable} h-full`}
     >
-      <body className="min-h-full">
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <AdminHeader />
-            <main className="flex-1 p-6 lg:p-8">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

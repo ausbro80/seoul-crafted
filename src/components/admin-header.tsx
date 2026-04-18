@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const TITLES: Record<string, string> = {
   "/": "Dashboard",
@@ -15,11 +16,13 @@ const TITLES: Record<string, string> = {
   "/settings": "Settings",
 };
 
-export function AdminHeader() {
+export function AdminHeader({ userEmail }: { userEmail: string | null }) {
   const pathname = usePathname();
   const title =
     TITLES[pathname] ??
-    TITLES[Object.keys(TITLES).find((k) => k !== "/" && pathname.startsWith(k)) ?? "/"] ??
+    TITLES[
+      Object.keys(TITLES).find((k) => k !== "/" && pathname.startsWith(k)) ?? "/"
+    ] ??
     "Dashboard";
 
   return (
@@ -27,6 +30,18 @@ export function AdminHeader() {
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-5" />
       <h1 className="text-sm font-semibold tracking-tight">{title}</h1>
+      <div className="ml-auto flex items-center gap-3">
+        {userEmail ? (
+          <span className="hidden text-xs text-muted-foreground sm:inline">
+            {userEmail}
+          </span>
+        ) : null}
+        <form action="/auth/logout" method="post">
+          <Button variant="ghost" size="sm" type="submit">
+            Sign out
+          </Button>
+        </form>
+      </div>
     </header>
   );
 }
