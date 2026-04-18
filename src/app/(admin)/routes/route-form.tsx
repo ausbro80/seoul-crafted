@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -13,6 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { RouteFormState } from "./actions";
+
+type LangFields = {
+  title?: string | null;
+  subtitle?: string | null;
+  description?: string | null;
+};
 
 export type RouteFormDefaults = {
   slug?: string;
@@ -25,9 +32,12 @@ export type RouteFormDefaults = {
   badge?: string | null;
   tags?: string[];
   published?: boolean;
-  title_en?: string | null;
-  subtitle_en?: string | null;
-  description_en?: string | null;
+  i18n?: {
+    en?: LangFields;
+    zh?: LangFields;
+    ja?: LangFields;
+    vi?: LangFields;
+  };
 };
 
 const TIERS = [
@@ -46,6 +56,61 @@ const CATEGORIES = [
   "photo",
   "craft",
 ];
+
+const LANGS: { code: "en" | "zh" | "ja" | "vi"; label: string }[] = [
+  { code: "en", label: "English" },
+  { code: "zh", label: "中文" },
+  { code: "ja", label: "日本語" },
+  { code: "vi", label: "Tiếng Việt" },
+];
+
+function LanguageFields({
+  lang,
+  defaults,
+}: {
+  lang: "en" | "zh" | "ja" | "vi";
+  defaults?: LangFields;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor={`title_${lang}`}>Title</Label>
+        <Input
+          id={`title_${lang}`}
+          name={`title_${lang}`}
+          defaultValue={defaults?.title ?? ""}
+          placeholder={
+            lang === "en"
+              ? "Bukchon hanok morning"
+              : lang === "zh"
+                ? "北村韩屋之晨"
+                : lang === "ja"
+                  ? "北村韓屋の朝"
+                  : "Buổi sáng ở Bukchon"
+          }
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`subtitle_${lang}`}>Subtitle</Label>
+        <Input
+          id={`subtitle_${lang}`}
+          name={`subtitle_${lang}`}
+          defaultValue={defaults?.subtitle ?? ""}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor={`description_${lang}`}>Description</Label>
+        <textarea
+          id={`description_${lang}`}
+          name={`description_${lang}`}
+          rows={5}
+          defaultValue={defaults?.description ?? ""}
+          className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        />
+      </div>
+    </div>
+  );
+}
 
 export function RouteForm({
   action,
@@ -66,52 +131,23 @@ export function RouteForm({
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Overview</CardTitle>
+            <CardTitle className="text-base">Translations</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="title_en">Title (EN)</Label>
-                <Input
-                  id="title_en"
-                  name="title_en"
-                  defaultValue={defaults?.title_en ?? ""}
-                  placeholder="Bukchon hanok morning"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  name="slug"
-                  defaultValue={defaults?.slug ?? ""}
-                  placeholder="bukchon-morning"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Leave blank to auto-generate from title.
-                </p>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subtitle_en">Subtitle (EN)</Label>
-              <Input
-                id="subtitle_en"
-                name="subtitle_en"
-                defaultValue={defaults?.subtitle_en ?? ""}
-                placeholder="Three hours through the craftsmen's quarter"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description_en">Description (EN)</Label>
-              <textarea
-                id="description_en"
-                name="description_en"
-                rows={5}
-                defaultValue={defaults?.description_en ?? ""}
-                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                placeholder="What the customer will experience, highlights, who it's for…"
-              />
-            </div>
+          <CardContent>
+            <Tabs defaultValue="en" className="w-full">
+              <TabsList className="mb-4 grid w-full grid-cols-4">
+                {LANGS.map((l) => (
+                  <TabsTrigger key={l.code} value={l.code}>
+                    {l.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {LANGS.map((l) => (
+                <TabsContent key={l.code} value={l.code} className="mt-0">
+                  <LanguageFields lang={l.code} defaults={defaults?.i18n?.[l.code]} />
+                </TabsContent>
+              ))}
+            </Tabs>
           </CardContent>
         </Card>
 
@@ -120,6 +156,18 @@ export function RouteForm({
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="slug">Slug</Label>
+              <Input
+                id="slug"
+                name="slug"
+                defaultValue={defaults?.slug ?? ""}
+                placeholder="bukchon-morning"
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave blank to auto-generate from English title.
+              </p>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="tier">Tier</Label>
               <Select name="tier" defaultValue={defaults?.tier ?? "curated"}>
@@ -179,11 +227,8 @@ export function RouteForm({
                 name="hero_image_url"
                 type="url"
                 defaultValue={defaults?.hero_image_url ?? ""}
-                placeholder="https://…"
+                placeholder="https://… (or pick from Media library)"
               />
-              <p className="text-xs text-muted-foreground">
-                Media library upload lands in a later pass.
-              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="theme_color">Theme color</Label>
@@ -254,7 +299,6 @@ export function RouteForm({
           </CardHeader>
           <CardContent className="text-xs text-muted-foreground">
             <ul className="list-inside list-disc space-y-1">
-              <li>ZH · JA · VI translations</li>
               <li>Itinerary stops (reorderable)</li>
               <li>Media library picker for hero image</li>
               <li>Live mobile preview card</li>

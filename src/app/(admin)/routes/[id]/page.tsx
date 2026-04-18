@@ -42,7 +42,11 @@ export default async function EditRoutePage({
 
   if (!route) notFound();
 
-  const en = route.routes_i18n?.find((t) => t.lang === "en");
+  const byLang = (lang: string) => route.routes_i18n?.find((t) => t.lang === lang);
+  const en = byLang("en");
+  const zh = byLang("zh");
+  const ja = byLang("ja");
+  const vi = byLang("vi");
 
   const bound = updateRoute.bind(null, route.id);
 
@@ -72,9 +76,12 @@ export default async function EditRoutePage({
           badge: route.badge,
           tags: route.tags ?? [],
           published: route.published,
-          title_en: en?.title ?? "",
-          subtitle_en: en?.subtitle ?? "",
-          description_en: en?.description ?? "",
+          i18n: {
+            en: { title: en?.title, subtitle: en?.subtitle, description: en?.description },
+            zh: { title: zh?.title, subtitle: zh?.subtitle, description: zh?.description },
+            ja: { title: ja?.title, subtitle: ja?.subtitle, description: ja?.description },
+            vi: { title: vi?.title, subtitle: vi?.subtitle, description: vi?.description },
+          },
         }}
       />
     </PageShell>

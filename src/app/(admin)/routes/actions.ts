@@ -8,13 +8,30 @@ import { slugify } from "@/lib/format";
 export type RouteFormState = {
   ok?: boolean;
   error?: string;
-  fieldErrors?: Record<string, string>;
 };
 
+const LANGS = ["en", "zh", "ja", "vi"] as const;
+type Lang = (typeof LANGS)[number];
+
 function parsePayload(formData: FormData) {
+  const i18n: Record<Lang, { title: string | null; subtitle: string | null; description: string | null }> =
+    {
+      en: { title: null, subtitle: null, description: null },
+      zh: { title: null, subtitle: null, description: null },
+      ja: { title: null, subtitle: null, description: null },
+      vi: { title: null, subtitle: null, description: null },
+    };
+  for (const lang of LANGS) {
+    i18n[lang] = {
+      title: String(formData.get(`title_${lang}`) ?? "").trim() || null,
+      subtitle: String(formData.get(`subtitle_${lang}`) ?? "").trim() || null,
+      description: String(formData.get(`description_${lang}`) ?? "").trim() || null,
+    };
+  }
+
   const slug =
     String(formData.get("slug") ?? "").trim() ||
-    slugify(String(formData.get("title_en") ?? ""));
+    slugify(i18n.en.title ?? "");
   const tier = String(formData.get("tier") ?? "curated");
   const categoryRaw = String(formData.get("category") ?? "");
   const category = categoryRaw === "" ? null : categoryRaw;
@@ -31,11 +48,6 @@ function parsePayload(formData: FormData) {
     .filter(Boolean);
   const published = formData.get("published") === "on";
 
-  const title_en = String(formData.get("title_en") ?? "").trim() || null;
-  const subtitle_en = String(formData.get("subtitle_en") ?? "").trim() || null;
-  const description_en =
-    String(formData.get("description_en") ?? "").trim() || null;
-
   return {
     route: {
       slug,
@@ -49,15 +61,28 @@ function parsePayload(formData: FormData) {
       tags,
       published,
     },
-    i18n_en: { title: title_en, subtitle: subtitle_en, description: description_en },
+    i18n,
   };
+}
+
+function i18nRows(
+  routeId: string,
+  i18n: ReturnType<typeof parsePayload>["i18n"],
+) {
+  return LANGS.filter((lang) =>
+    i18n[lang].title || i18n[lang].subtitle || i18n[lang].description,
+  ).map((lang) => ({
+    route_id: routeId,
+    lang,
+    ...i18n[lang],
+  }));
 }
 
 export async function createRoute(
   _prev: RouteFormState | undefined,
   formData: FormData,
 ): Promise<RouteFormState> {
-  const { route, i18n_en } = parsePayload(formData);
+  const { route, i18n } = parsePayload(formData);
   if (!route.slug) return { ok: false, error: "Slug or English title is required." };
 
   const supabase = await createClient();
@@ -69,10 +94,9 @@ export async function createRoute(
 
   if (error) return { ok: false, error: error.message };
 
-  if (i18n_en.title || i18n_en.subtitle || i18n_en.description) {
-    const { error: i18nError } = await supabase
-      .from("routes_i18n")
-      .insert({ route_id: inserted.id, lang: "en", ...i18n_en });
+  const rows = i18nRows(inserted.id, i18n);
+  if (rows.length > 0) {
+    const { error: i18nError } = await supabase.from("routes_i18n").insert(rows);
     if (i18nError) return { ok: false, error: i18nError.message };
   }
 
@@ -85,16 +109,21 @@ export async function updateRoute(
   _prev: RouteFormState | undefined,
   formData: FormData,
 ): Promise<RouteFormState> {
-  const { route, i18n_en } = parsePayload(formData);
+  const { route, i18n } = parsePayload(formData);
   if (!route.slug) return { ok: false, error: "Slug or English title is required." };
 
   const supabase = await createClient();
   const { error } = await supabase.from("routes").update(route).eq("id", id);
   if (error) return { ok: false, error: error.message };
 
+  const rows = LANGS.map((lang) => ({
+    route_id: id,
+    lang,
+    ...i18n[lang],
+  }));
   const { error: i18nError } = await supabase
     .from("routes_i18n")
-    .upsert({ route_id: id, lang: "en", ...i18n_en }, { onConflict: "route_id,lang" });
+    .upsert(rows, { onConflict: "route_id,lang" });
   if (i18nError) return { ok: false, error: i18nError.message };
 
   revalidatePath("/routes");
