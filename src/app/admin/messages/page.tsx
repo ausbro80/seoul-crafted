@@ -95,21 +95,7 @@ export default async function MessagesPage({
       <ChatLive
         topics={liveTopics}
         notifyTitle="New message"
-        notifyBodyFor={(payload: unknown) => {
-          const p = payload as {
-            preview?: string;
-            customer_email?: string;
-            translations?: Record<string, string>;
-            body?: string;
-          };
-          return (
-            p?.translations?.[ADMIN_LANG] ??
-            p?.body ??
-            p?.preview ??
-            p?.customer_email ??
-            null
-          );
-        }}
+        viewerLang={ADMIN_LANG}
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">

@@ -5,19 +5,40 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type Opts = {
-  topics: string[];          // e.g. ["convo:abc", "convo:def"] or ["admin:inbox"]
-  notifyTitle: string;       // shown in the browser Notification + tab flash
-  notifyBodyFor?: (payload: unknown) => string | null;
-  playSound?: boolean;       // default true
+  /** Realtime topics to subscribe to (e.g. ["convo:abc", "admin:inbox"]). */
+  topics: string[];
+  /** Shown in the browser Notification title + tab flash. */
+  notifyTitle: string;
+  /** Two-letter lang to pick from payload.translations. Default "en". */
+  viewerLang?: string;
+  /** Default true. */
+  playSound?: boolean;
 };
 
 const SOUND_URL =
   "data:audio/wav;base64,UklGRqgCAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YYQCAAAAAP///78DAgA+/T/+LgT6/xL8ewT8AQz69AJDAin9VP3yAiv+qfzcAaH/hPwOAnH+bwBNAOT/vvxMAED++wMq/wEBpwJN/zcCdgBU/ZABDwHM/ewB/v94ALsA5f3/Akr9f/83BAEBhf/d/GX8qAIJ/0IAZwCj/2MA3gG//ur9+wA9A2b+FgEyAMcAMwGN/twC7P5i/+MBff7J/4EAIQFn/hQA9QBN/0wEB/5S/TwBvwFo/+sA+f/A/6b+iv4Y/vYAFP8zAjMAR/+RAHD9xwK4/en/MwCo/3MB0gCL/8H/+P74/vn+8gHAAIr+3wHC/sYBHwGw/+IAdQCJ/9YAIwHa/03/ff7f/vP9wv5d/pj++QLP/uj+OQGM/zYCFQAg/zsBsQDS/5T/XgF1ALb/y//i/u7/UQDK/yH+2f+l/xT/4QDA/6f/GgCR/44AawAFAOr+Ff9PANL/WADR/53/bQDh/xoAJwDs/wEAQAAIALX/EAD//wgAiACsANH/AAD+/w0A+v8AABYA3v/6/+D/7f8aADAAMwAoADsAIAAqACoAHQAmAAoAFAAZACAAHgAZABAADAAHAAkAEQANABEADgAOABEABwAJAA8ABQAHAAUACQAEAAMABAAGAAYABgAHAAcABgAFAAMAAwACAAAA//8AAP3//f///wAAAAD//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
+function pickBody(payload: unknown, lang: string): string | null {
+  if (!payload || typeof payload !== "object") return null;
+  const p = payload as {
+    body?: string;
+    preview?: string;
+    translations?: Record<string, string>;
+  };
+  return (
+    (p.translations && typeof p.translations[lang] === "string"
+      ? p.translations[lang]
+      : null) ??
+    p.body ??
+    p.preview ??
+    null
+  );
+}
+
 export function ChatLive({
   topics,
   notifyTitle,
-  notifyBodyFor,
+  viewerLang = "en",
   playSound = true,
 }: Opts) {
   const router = useRouter();
@@ -30,16 +51,16 @@ export function ChatLive({
       sb
         .channel(topic)
         .on("broadcast", { event: "message" }, (msg) => {
-          // Rate-limit refresh to once per 500ms in case of bursts.
           const now = Date.now();
           if (now - lastRef.current < 400) return;
           lastRef.current = now;
 
           router.refresh();
 
-          const body = notifyBodyFor?.(msg.payload) ?? null;
+          const body = pickBody(msg.payload, viewerLang);
           const isHidden =
-            typeof document !== "undefined" && document.visibilityState === "hidden";
+            typeof document !== "undefined" &&
+            document.visibilityState === "hidden";
 
           if (playSound && typeof Audio !== "undefined") {
             try {
@@ -69,7 +90,6 @@ export function ChatLive({
             }
           }
 
-          // Title flash while tab is hidden
           if (isHidden && typeof document !== "undefined") {
             const original = document.title;
             document.title = `• ${original}`;
@@ -90,7 +110,7 @@ export function ChatLive({
         sb.removeChannel(ch);
       });
     };
-  }, [topics.join("|"), router, notifyTitle, notifyBodyFor, playSound]);
+  }, [topics.join("|"), router, notifyTitle, viewerLang, playSound]);
 
   return null;
 }

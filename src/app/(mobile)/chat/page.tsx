@@ -94,10 +94,7 @@ export default async function ChatPage({
       <ChatLive
         topics={topics}
         notifyTitle={t(lang, "chat_title")}
-        notifyBodyFor={(payload: unknown) => {
-          const p = payload as { body?: string; translations?: Record<string, string> };
-          return p?.translations?.[lang] ?? p?.body ?? null;
-        }}
+        viewerLang={lang}
       />
 
       <header className="flex items-start justify-between px-5 pt-5">
