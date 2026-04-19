@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { translateForAllLanguages } from "@/lib/translate";
 import { broadcast } from "@/lib/broadcast";
+import { sendPushToEmail } from "@/lib/push";
 
 export async function sendAdminReply(
   conversationId: string,
@@ -33,10 +34,14 @@ export async function sendAdminReply(
     .single();
   if (insErr) throw new Error(insErr.message);
 
-  await supabase
+  const { data: convo } = await supabase
     .from("conversations")
     .update({ last_message_at: new Date().toISOString() })
-    .eq("id", conversationId);
+    .eq("id", conversationId)
+    .select("customer_email")
+    .single();
+
+  const customerEmail = convo?.customer_email;
 
   await Promise.all([
     broadcast(`convo:${conversationId}`, "message", msg),
@@ -46,6 +51,14 @@ export async function sendAdminReply(
       preview: body,
       source_lang: sourceLang,
     }),
+    customerEmail
+      ? sendPushToEmail(customerEmail, {
+          title: `Message from ${senderRole}`,
+          body,
+          url: `/chat?tab=${senderRole}`,
+          tag: `convo:${conversationId}`,
+        })
+      : Promise.resolve(),
   ]);
 
   revalidatePath("/admin/messages");

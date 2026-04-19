@@ -3,11 +3,14 @@ import { ChevronDown } from "lucide-react";
 import { getLang, LANG_LABELS, type Lang } from "@/lib/i18n";
 import { t } from "@/lib/ui-strings";
 import { setLang } from "../_actions/lang";
+import { getTravelerEmail } from "../_actions/booking";
+import { PushSubscribe } from "@/components/push-subscribe";
 
 export const dynamic = "force-dynamic";
 
 export default async function MePage() {
   const current = await getLang();
+  const email = await getTravelerEmail();
   const others = (Object.keys(LANG_LABELS) as Lang[]).filter((c) => c !== current);
 
   return (
@@ -89,6 +92,18 @@ export default async function MePage() {
           </div>
         </details>
       </section>
+
+      {email ? (
+        <section className="px-5 pt-6">
+          <h2
+            className="mb-3 text-[11px] uppercase tracking-[0.18em]"
+            style={{ color: "var(--ink-subtle)" }}
+          >
+            Notifications
+          </h2>
+          <PushSubscribe email={email} role="customer" />
+        </section>
+      ) : null}
 
       <section className="px-5 pt-6 pb-4">
         <h2

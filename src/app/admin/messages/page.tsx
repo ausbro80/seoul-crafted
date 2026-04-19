@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { sendAdminReply, markConversationRead } from "./actions";
 import { ChatLive, EnableNotificationsButton } from "@/components/chat-live";
+import { PushSubscribe } from "@/components/push-subscribe";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,11 @@ export default async function MessagesPage({
   const { c: selectedId } = await searchParams;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const adminEmail = user?.email ?? null;
+
   const { data: convos } = await supabase
     .from("conversations")
     .select(
@@ -97,6 +103,10 @@ export default async function MessagesPage({
         notifyTitle="New message"
         viewerLang={ADMIN_LANG}
       />
+
+      {adminEmail ? (
+        <PushSubscribe email={adminEmail} role="admin" />
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         {/* Conversation list */}

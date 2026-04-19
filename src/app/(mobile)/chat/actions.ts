@@ -7,6 +7,7 @@ import { getTravelerEmail } from "../_actions/booking";
 import { getLang } from "@/lib/i18n";
 import { translateForAllLanguages } from "@/lib/translate";
 import { broadcast } from "@/lib/broadcast";
+import { sendPushToAdmins } from "@/lib/push";
 
 const TRAVELER_COOKIE = "seoul_crafted_email";
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -63,7 +64,7 @@ export async function sendCustomerMessage(formData: FormData) {
     .single();
   if (msgErr) throw new Error(msgErr.message);
 
-  // Fire-and-forget realtime broadcasts.
+  // Fire-and-forget realtime broadcasts + web push to admins.
   await Promise.all([
     broadcast(`convo:${convo.id}`, "message", msg),
     broadcast("admin:inbox", "message", {
@@ -72,6 +73,12 @@ export async function sendCustomerMessage(formData: FormData) {
       channel,
       preview: body,
       source_lang: sourceLang,
+    }),
+    sendPushToAdmins({
+      title: `New message (${channel})`,
+      body: translations.ko ?? body,
+      url: `/admin/messages?c=${convo.id}`,
+      tag: `convo:${convo.id}`,
     }),
   ]);
 
