@@ -68,7 +68,7 @@ export async function uploadMedia(
     uploaded += 1;
   }
 
-  revalidatePath("/media");
+  revalidatePath("/admin/media");
   return { ok: true, uploaded };
 }
 
@@ -78,5 +78,5 @@ export async function deleteMedia(id: string, path: string, _formData: FormData)
   if (rmErr) throw new Error(rmErr.message);
   const { error } = await supabase.from("media").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/media");
+  revalidatePath("/admin/media");
 }

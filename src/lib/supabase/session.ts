@@ -30,18 +30,20 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/auth");
+  const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isLoginPath = pathname === "/login";
 
-  if (!user && !isAuthRoute) {
+  // Only the admin surface is gated. Mobile / public pages are open.
+  if (isAdminPath && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === "/login") {
+  if (isLoginPath && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 

@@ -98,25 +98,25 @@ export default async function DashboardPage() {
       label: "Bookings (30d)",
       value: (bookingsCount.count ?? 0).toLocaleString(),
       hint: "all statuses",
-      href: "/bookings",
+      href: "/admin/bookings",
     },
     {
       label: "Revenue (30d)",
       value: formatPrice(revenueCents),
       hint: "confirmed + completed",
-      href: "/bookings",
+      href: "/admin/bookings",
     },
     {
       label: "Active routes",
       value: (routesPublished.count ?? 0).toLocaleString(),
       hint: "published",
-      href: "/routes",
+      href: "/admin/routes",
     },
     {
       label: "Unread messages",
       value: (unreadCount.count ?? 0).toLocaleString(),
       hint: "from customers",
-      href: "/messages",
+      href: "/admin/messages",
     },
   ];
 
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
                   return (
                     <Link
                       key={b.id}
-                      href="/bookings"
+                      href="/admin/bookings"
                       className="flex items-center gap-3 px-6 py-3 text-sm hover:bg-muted/40"
                     >
                       <div className="min-w-0 flex-1">
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
                 {unreadMessages.data.map((m) => (
                   <Link
                     key={m.id}
-                    href="/messages"
+                    href="/admin/messages"
                     className="block px-6 py-3 text-sm hover:bg-muted/40"
                   >
                     <div className="truncate font-medium">

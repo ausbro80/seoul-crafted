@@ -29,7 +29,7 @@ export default async function GuidesPage() {
     <PageShell
       title="Guides"
       description="Photo, bio, languages, and active status."
-      actions={<Button render={<Link href="/guides/new">Add guide</Link>} />}
+      actions={<Button render={<Link href="/admin/guides/new">Add guide</Link>} />}
     >
       {error ? (
         <Card className="border-[var(--brand)] bg-[var(--brand-soft)]">
@@ -42,7 +42,7 @@ export default async function GuidesPage() {
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
             No guides yet.{" "}
             <Link
-              href="/guides/new"
+              href="/admin/guides/new"
               className="font-medium text-foreground underline"
             >
               Add the first one
@@ -53,7 +53,7 @@ export default async function GuidesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {guides.map((g) => (
-            <Link key={g.id} href={`/guides/${g.id}`}>
+            <Link key={g.id} href={`/admin/guides/${g.id}`}>
               <Card className="h-full transition hover:border-foreground/20 hover:shadow-sm">
                 <CardContent className="flex items-start gap-3 p-4">
                   <Avatar className="h-12 w-12">

@@ -39,8 +39,8 @@ export async function createGuide(
     .single();
 
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/guides");
-  redirect(`/guides/${data.id}`);
+  revalidatePath("/admin/guides");
+  redirect(`/admin/guides/${data.id}`);
 }
 
 export async function updateGuide(
@@ -54,8 +54,8 @@ export async function updateGuide(
   const supabase = await createClient();
   const { error } = await supabase.from("guides").update(payload).eq("id", id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/guides");
-  revalidatePath(`/guides/${id}`);
+  revalidatePath("/admin/guides");
+  revalidatePath(`/admin/guides/${id}`);
   return { ok: true };
 }
 
@@ -63,6 +63,6 @@ export async function deleteGuide(id: string, _formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("guides").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/guides");
-  redirect("/guides");
+  revalidatePath("/admin/guides");
+  redirect("/admin/guides");
 }

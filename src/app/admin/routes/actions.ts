@@ -100,8 +100,8 @@ export async function createRoute(
     if (i18nError) return { ok: false, error: i18nError.message };
   }
 
-  revalidatePath("/routes");
-  redirect(`/routes/${inserted.id}`);
+  revalidatePath("/admin/routes");
+  redirect(`/admin/routes/${inserted.id}`);
 }
 
 export async function updateRoute(
@@ -126,8 +126,8 @@ export async function updateRoute(
     .upsert(rows, { onConflict: "route_id,lang" });
   if (i18nError) return { ok: false, error: i18nError.message };
 
-  revalidatePath("/routes");
-  revalidatePath(`/routes/${id}`);
+  revalidatePath("/admin/routes");
+  revalidatePath(`/admin/routes/${id}`);
   return { ok: true };
 }
 
@@ -135,6 +135,6 @@ export async function deleteRoute(id: string, _formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.from("routes").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/routes");
-  redirect("/routes");
+  revalidatePath("/admin/routes");
+  redirect("/admin/routes");
 }

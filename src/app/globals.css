@@ -143,6 +143,38 @@
   --sidebar-ring: #5B6472;
 }
 
+/* Mobile app — "Candy" palette (warm, vermilion-accented).
+   Applied only inside .theme-candy (the public/mobile surface).
+   Admin keeps the cool neutral palette above. */
+.theme-candy {
+  --background: #FBF7F2;
+  --foreground: #1F1A14;
+  --card: #FFFFFF;
+  --card-foreground: #1F1A14;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F1A14;
+  --primary: #C44536;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F3ECE1;
+  --secondary-foreground: #1F1A14;
+  --muted: #F3ECE1;
+  --muted-foreground: #6B5F4E;
+  --accent: #DCEBE5;
+  --accent-foreground: #1F1A14;
+  --destructive: #C44536;
+  --border: #E8DFD1;
+  --input: #E8DFD1;
+  --ring: #A89B87;
+
+  --brand: #C44536;
+  --brand-soft: #F4DDD7;
+  --jade: #3E8E7E;
+  --jade-soft: #DCEBE5;
+  --gold: #C69749;
+  --gold-soft: #F5E9CF;
+  --ink-subtle: #A89B87;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -38,7 +38,7 @@ export default async function RoutesPage() {
       title="Routes"
       description="Curated, guided custom, and route-only tours."
       actions={
-        <Button render={<Link href="/routes/new">New route</Link>} />
+        <Button render={<Link href="/admin/routes/new">New route</Link>} />
       }
     >
       {error ? (
@@ -51,7 +51,7 @@ export default async function RoutesPage() {
         <Card className="border-dashed">
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
             No routes yet.{" "}
-            <Link href="/routes/new" className="font-medium text-foreground underline">
+            <Link href="/admin/routes/new" className="font-medium text-foreground underline">
               Create the first one
             </Link>
             .
@@ -63,7 +63,7 @@ export default async function RoutesPage() {
             const enTitle =
               r.routes_i18n?.find((t) => t.lang === "en")?.title ?? r.slug;
             return (
-              <Link key={r.id} href={`/routes/${r.id}`}>
+              <Link key={r.id} href={`/admin/routes/${r.id}`}>
                 <Card className="h-full overflow-hidden transition hover:border-foreground/20 hover:shadow-sm">
                   <div
                     className="aspect-video w-full bg-muted"

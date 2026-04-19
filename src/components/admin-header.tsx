@@ -6,14 +6,14 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 
 const TITLES: Record<string, string> = {
-  "/": "Dashboard",
-  "/routes": "Routes",
-  "/guides": "Guides",
-  "/bookings": "Bookings",
-  "/messages": "Messages",
-  "/content": "Content & i18n",
-  "/media": "Media library",
-  "/settings": "Settings",
+  "/admin": "Dashboard",
+  "/admin/routes": "Routes",
+  "/admin/guides": "Guides",
+  "/admin/bookings": "Bookings",
+  "/admin/messages": "Messages",
+  "/admin/content": "Content & i18n",
+  "/admin/media": "Media library",
+  "/admin/settings": "Settings",
 };
 
 export function AdminHeader({ userEmail }: { userEmail: string | null }) {
@@ -21,7 +21,8 @@ export function AdminHeader({ userEmail }: { userEmail: string | null }) {
   const title =
     TITLES[pathname] ??
     TITLES[
-      Object.keys(TITLES).find((k) => k !== "/" && pathname.startsWith(k)) ?? "/"
+      Object.keys(TITLES).find((k) => k !== "/admin" && pathname.startsWith(k)) ??
+        "/admin"
     ] ??
     "Dashboard";
 

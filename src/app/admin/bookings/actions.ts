@@ -16,6 +16,6 @@ export async function updateBookingStatus(formData: FormData) {
     .update({ status })
     .eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/bookings");
+  revalidatePath("/admin/bookings");
   revalidatePath("/");
 }
