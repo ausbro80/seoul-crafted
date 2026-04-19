@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import type { RouteFormState } from "./actions";
 
 type LangFields = {
@@ -112,10 +119,13 @@ function LanguageFields({
   );
 }
 
+export type MediaOption = { id: string; url: string; filename: string };
+
 export function RouteForm({
   action,
   defaults,
   submitLabel,
+  mediaOptions = [],
 }: {
   action: (
     prev: RouteFormState | undefined,
@@ -123,8 +133,11 @@ export function RouteForm({
   ) => Promise<RouteFormState>;
   defaults?: RouteFormDefaults;
   submitLabel: string;
+  mediaOptions?: MediaOption[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  const [heroUrl, setHeroUrl] = useState(defaults?.hero_image_url ?? "");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <form action={formAction} className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -221,14 +234,74 @@ export function RouteForm({
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="hero_image_url">Hero image URL</Label>
-              <Input
-                id="hero_image_url"
-                name="hero_image_url"
-                type="url"
-                defaultValue={defaults?.hero_image_url ?? ""}
-                placeholder="https://… (or pick from Media library)"
-              />
+              <Label htmlFor="hero_image_url">Hero image</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="hero_image_url"
+                  name="hero_image_url"
+                  type="url"
+                  value={heroUrl}
+                  onChange={(e) => setHeroUrl(e.target.value)}
+                  placeholder="https://… or pick from library"
+                  className="flex-1"
+                />
+                <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+                  <DialogTrigger
+                    render={
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={mediaOptions.length === 0}
+                      >
+                        {mediaOptions.length === 0 ? "No media" : "Pick"}
+                      </Button>
+                    }
+                  />
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>Media library</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid max-h-[60vh] grid-cols-3 gap-3 overflow-y-auto p-1 sm:grid-cols-4">
+                      {mediaOptions.map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            setHeroUrl(m.url);
+                            setPickerOpen(false);
+                          }}
+                          className="group overflow-hidden rounded-lg border text-left"
+                        >
+                          <div
+                            className="aspect-square w-full bg-muted"
+                            style={{
+                              backgroundImage: `url(${m.url})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }}
+                          />
+                          <div
+                            className="truncate px-2 py-1.5 text-[11px]"
+                            title={m.filename}
+                          >
+                            {m.filename}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              {heroUrl ? (
+                <div
+                  className="h-24 w-full rounded-lg border"
+                  style={{
+                    backgroundImage: `url(${heroUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+              ) : null}
             </div>
             <div className="space-y-2">
               <Label htmlFor="theme_color">Theme color</Label>

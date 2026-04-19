@@ -138,3 +138,77 @@ export async function deleteRoute(id: string, _formData: FormData) {
   revalidatePath("/admin/routes");
   redirect("/admin/routes");
 }
+
+// ========== Route stops (itinerary) ==========
+
+export async function addStop(routeId: string, formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return;
+  const time_label = String(formData.get("time_label") ?? "").trim() || null;
+  const durStr = String(formData.get("duration_min") ?? "").trim();
+  const duration_min = durStr ? Number(durStr) : null;
+  const note = String(formData.get("note") ?? "").trim() || null;
+
+  const supabase = await createClient();
+  const { data: last } = await supabase
+    .from("route_stops")
+    .select("position")
+    .eq("route_id", routeId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const position = (last?.position ?? 0) + 1;
+
+  const { error } = await supabase.from("route_stops").insert({
+    route_id: routeId,
+    position,
+    time_label,
+    title,
+    duration_min,
+    note,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath(`/admin/routes/${routeId}`);
+}
+
+export async function deleteStop(
+  routeId: string,
+  stopId: string,
+  _formData: FormData,
+) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("route_stops").delete().eq("id", stopId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/admin/routes/${routeId}`);
+}
+
+export async function moveStop(
+  routeId: string,
+  stopId: string,
+  direction: "up" | "down",
+  _formData: FormData,
+) {
+  const supabase = await createClient();
+  const { data: stops } = await supabase
+    .from("route_stops")
+    .select("id, position")
+    .eq("route_id", routeId)
+    .order("position", { ascending: true });
+
+  if (!stops) return;
+  const idx = stops.findIndex((s) => s.id === stopId);
+  if (idx === -1) return;
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= stops.length) return;
+
+  const a = stops[idx];
+  const b = stops[swapIdx];
+
+  // Two-step swap via a sentinel position to avoid unique-constraint collisions.
+  const sentinel = -1 - Math.floor(Math.random() * 1000);
+  await supabase.from("route_stops").update({ position: sentinel }).eq("id", a.id);
+  await supabase.from("route_stops").update({ position: a.position }).eq("id", b.id);
+  await supabase.from("route_stops").update({ position: b.position }).eq("id", a.id);
+
+  revalidatePath(`/admin/routes/${routeId}`);
+}
