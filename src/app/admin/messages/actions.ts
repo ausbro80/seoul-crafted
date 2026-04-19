@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { translateForAllLanguages } from "@/lib/translate";
+import { broadcast } from "@/lib/broadcast";
 
 export async function sendAdminReply(
   conversationId: string,
@@ -12,18 +14,39 @@ export async function sendAdminReply(
     formData.get("sender_role") === "guide" ? "guide" : "support";
   if (!body) return;
 
+  // Ops team writes in Korean by default; translations land in every
+  // supported chat language for the customer.
+  const sourceLang = "ko";
+  const translations = await translateForAllLanguages(body, sourceLang);
+
   const supabase = await createClient();
-  const { error: insErr } = await supabase.from("messages").insert({
-    conversation_id: conversationId,
-    sender: senderRole,
-    body,
-  });
+  const { data: msg, error: insErr } = await supabase
+    .from("messages")
+    .insert({
+      conversation_id: conversationId,
+      sender: senderRole,
+      body,
+      source_lang: sourceLang,
+      translations,
+    })
+    .select("id, conversation_id, sender, body, source_lang, translations, created_at")
+    .single();
   if (insErr) throw new Error(insErr.message);
 
   await supabase
     .from("conversations")
     .update({ last_message_at: new Date().toISOString() })
     .eq("id", conversationId);
+
+  await Promise.all([
+    broadcast(`convo:${conversationId}`, "message", msg),
+    broadcast("admin:inbox", "message", {
+      conversation_id: conversationId,
+      from_admin: true,
+      preview: body,
+      source_lang: sourceLang,
+    }),
+  ]);
 
   revalidatePath("/admin/messages");
   revalidatePath("/chat");

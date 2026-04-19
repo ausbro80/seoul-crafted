@@ -5,8 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { sendAdminReply, markConversationRead } from "./actions";
+import { ChatLive, EnableNotificationsButton } from "@/components/chat-live";
 
 export const dynamic = "force-dynamic";
+
+const ADMIN_LANG = "ko"; // ops team sees Korean
 
 type ConvoListRow = {
   id: string;
@@ -14,22 +17,39 @@ type ConvoListRow = {
   channel: "guide" | "support";
   last_message_at: string | null;
   created_at: string;
-  messages: {
-    id: string;
-    body: string;
-    sender: string;
-    read_at: string | null;
-    created_at: string;
-  }[] | null;
+  messages:
+    | {
+        id: string;
+        body: string;
+        sender: string;
+        source_lang: string | null;
+        translations: Record<string, string> | null;
+        read_at: string | null;
+        created_at: string;
+      }[]
+    | null;
 };
 
 type ThreadMessage = {
   id: string;
   sender: "customer" | "guide" | "support";
   body: string;
+  source_lang: string | null;
+  translations: Record<string, string> | null;
   read_at: string | null;
   created_at: string;
 };
+
+function pickText(
+  body: string,
+  translations: Record<string, string> | null,
+  targetLang: string,
+): string {
+  if (translations && typeof translations[targetLang] === "string") {
+    return translations[targetLang];
+  }
+  return body;
+}
 
 export default async function MessagesPage({
   searchParams,
@@ -42,7 +62,7 @@ export default async function MessagesPage({
   const { data: convos } = await supabase
     .from("conversations")
     .select(
-      "id, customer_email, channel, last_message_at, created_at, messages(id, body, sender, read_at, created_at)",
+      "id, customer_email, channel, last_message_at, created_at, messages(id, body, sender, source_lang, translations, read_at, created_at)",
     )
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .returns<ConvoListRow[]>();
@@ -54,18 +74,44 @@ export default async function MessagesPage({
   if (selected) {
     const { data } = await supabase
       .from("messages")
-      .select("id, sender, body, read_at, created_at")
+      .select(
+        "id, sender, body, source_lang, translations, read_at, created_at",
+      )
       .eq("conversation_id", selected.id)
       .order("created_at", { ascending: true })
       .returns<ThreadMessage[]>();
     thread = data ?? [];
   }
 
+  const liveTopics = ["admin:inbox"];
+  if (selected) liveTopics.push(`convo:${selected.id}`);
+
   return (
     <PageShell
       title="Messages"
-      description="Customer threads — one per (customer, channel) pair."
+      description="Customer threads — shown in Korean; originals one click away."
+      actions={<EnableNotificationsButton label="🔔 Enable notifications" />}
     >
+      <ChatLive
+        topics={liveTopics}
+        notifyTitle="New message"
+        notifyBodyFor={(payload: unknown) => {
+          const p = payload as {
+            preview?: string;
+            customer_email?: string;
+            translations?: Record<string, string>;
+            body?: string;
+          };
+          return (
+            p?.translations?.[ADMIN_LANG] ??
+            p?.body ??
+            p?.preview ??
+            p?.customer_email ??
+            null
+          );
+        }}
+      />
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
         {/* Conversation list */}
         <Card className="overflow-hidden">
@@ -84,6 +130,9 @@ export default async function MessagesPage({
                     .slice()
                     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
                   const active = selectedId === c.id;
+                  const latestKo = latest
+                    ? pickText(latest.body, latest.translations, ADMIN_LANG)
+                    : "";
                   return (
                     <Link
                       key={c.id}
@@ -110,7 +159,7 @@ export default async function MessagesPage({
                         {latest ? (
                           <span className="truncate">
                             {latest.sender === "customer" ? "" : "→ "}
-                            {latest.body}
+                            {latestKo}
                           </span>
                         ) : null}
                       </div>
@@ -155,12 +204,28 @@ export default async function MessagesPage({
                     {thread.map((m) => {
                       const fromAdmin =
                         m.sender === "support" || m.sender === "guide";
+                      const displayed = pickText(m.body, m.translations, ADMIN_LANG);
+                      const showOriginal =
+                        !fromAdmin &&
+                        m.source_lang &&
+                        m.source_lang !== ADMIN_LANG &&
+                        m.body !== displayed;
                       return (
                         <div
                           key={m.id}
                           className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm ${fromAdmin ? "self-end bg-primary text-primary-foreground" : "self-start bg-muted"}`}
                         >
-                          <div className="whitespace-pre-wrap">{m.body}</div>
+                          <div className="whitespace-pre-wrap">{displayed}</div>
+                          {showOriginal ? (
+                            <details className="mt-1 text-[10px] opacity-70">
+                              <summary className="cursor-pointer">
+                                {m.source_lang?.toUpperCase()} · original
+                              </summary>
+                              <div className="mt-1 whitespace-pre-wrap">
+                                {m.body}
+                              </div>
+                            </details>
+                          ) : null}
                           <div
                             className={`mt-1 text-[10px] ${fromAdmin ? "text-primary-foreground/60" : "text-muted-foreground"}`}
                           >
@@ -185,7 +250,7 @@ export default async function MessagesPage({
                 />
                 <input
                   name="body"
-                  placeholder={`Reply as ${selected.channel}…`}
+                  placeholder={`${selected.channel}로 답장 (한국어)…`}
                   className="flex-1 rounded-full border bg-background px-4 py-2 text-sm"
                   autoComplete="off"
                 />
