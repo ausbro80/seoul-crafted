@@ -322,6 +322,64 @@ const S = {
   // Generic
   back: { en: "Back", zh: "返回", ja: "戻る", vi: "Quay lại" },
   saving: { en: "Saving…", zh: "保存中…", ja: "保存中…", vi: "Đang lưu…" },
+
+  // Trip detail
+  trip_detail: {
+    en: "Trip detail",
+    zh: "行程详情",
+    ja: "旅程の詳細",
+    vi: "Chi tiết chuyến",
+  },
+  trip_section_guide: { en: "Your guide", zh: "你的向导", ja: "ガイド", vi: "Hướng dẫn của bạn" },
+  trip_guide_unassigned: {
+    en: "We'll match a guide for you shortly.",
+    zh: "我们即将为你匹配向导。",
+    ja: "まもなくガイドをマッチします。",
+    vi: "Chúng tôi sẽ ghép hướng dẫn cho bạn sớm.",
+  },
+  trip_section_itinerary: { en: "Itinerary", zh: "行程", ja: "スケジュール", vi: "Lộ trình" },
+  trip_section_actions: { en: "Actions", zh: "操作", ja: "操作", vi: "Tác vụ" },
+  trip_msg_guide: {
+    en: "Message guide",
+    zh: "联系向导",
+    ja: "ガイドに連絡",
+    vi: "Nhắn hướng dẫn",
+  },
+  trip_msg_support: {
+    en: "Message support",
+    zh: "联系客服",
+    ja: "サポートへ連絡",
+    vi: "Liên hệ hỗ trợ",
+  },
+  trip_cancel: { en: "Cancel booking", zh: "取消预订", ja: "予約をキャンセル", vi: "Huỷ đặt chỗ" },
+  trip_cancel_confirm_title: {
+    en: "Cancel this booking?",
+    zh: "确认取消？",
+    ja: "本当にキャンセルしますか？",
+    vi: "Bạn có chắc muốn huỷ?",
+  },
+  trip_cancel_confirm_body: {
+    en: "This can't be undone. Contact support first if something's wrong.",
+    zh: "取消后无法恢复。如有问题请先联系客服。",
+    ja: "取り消せません。問題があればサポートへ。",
+    vi: "Không thể hoàn tác. Có vấn đề gì liên hệ hỗ trợ trước.",
+  },
+  trip_cancel_confirm_yes: {
+    en: "Yes, cancel",
+    zh: "是的，取消",
+    ja: "はい、キャンセルする",
+    vi: "Có, huỷ",
+  },
+  trip_not_found: {
+    en: "Trip not found or not yours.",
+    zh: "未找到此行程。",
+    ja: "この旅程は見つかりません。",
+    vi: "Không tìm thấy chuyến này.",
+  },
+  trip_meta_date: { en: "Date", zh: "日期", ja: "日付", vi: "Ngày" },
+  trip_meta_group: { en: "Group size", zh: "人数", ja: "人数", vi: "Số người" },
+  trip_meta_total: { en: "Total paid", zh: "总金额", ja: "合計", vi: "Tổng" },
+  trip_notes: { en: "Notes", zh: "备注", ja: "メモ", vi: "Ghi chú" },
 } as const;
 
 export type StringKey = keyof typeof S;

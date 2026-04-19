@@ -17,5 +17,20 @@ export async function updateBookingStatus(formData: FormData) {
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/bookings");
-  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/trips");
+}
+
+export async function assignGuide(bookingId: string, formData: FormData) {
+  const raw = String(formData.get("guide_id") ?? "");
+  const guideId = raw === "" ? null : raw;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("bookings")
+    .update({ guide_id: guideId })
+    .eq("id", bookingId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/bookings");
+  revalidatePath("/trips");
 }

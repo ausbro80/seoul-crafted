@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 import { updateBookingStatus } from "./actions";
+import { GuideSelect } from "./guide-select";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ type BookingRow = {
   people: number;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   price_cents: number;
+  guide_id: string | null;
   created_at: string;
   routes: {
     slug: string;
@@ -58,7 +60,7 @@ export default async function BookingsPage({
   let query = supabase
     .from("bookings")
     .select(
-      "id, customer_email, customer_name, booking_date, people, status, price_cents, created_at, routes(slug, routes_i18n(lang, title)), guides(id, name)",
+      "id, customer_email, customer_name, booking_date, people, status, price_cents, guide_id, created_at, routes(slug, routes_i18n(lang, title)), guides(id, name)",
     )
     .order("created_at", { ascending: false });
 
@@ -67,6 +69,11 @@ export default async function BookingsPage({
   }
 
   const { data: bookings, error } = await query.returns<BookingRow[]>();
+
+  const { data: guides } = await supabase
+    .from("guides")
+    .select("id, name, active")
+    .order("name", { ascending: true });
 
   return (
     <PageShell
@@ -141,7 +148,13 @@ export default async function BookingsPage({
                       <td className="px-4 py-3 tabular-nums">
                         {b.booking_date ?? "—"}
                       </td>
-                      <td className="px-4 py-3">{b.guides?.name ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        <GuideSelect
+                          bookingId={b.id}
+                          currentGuideId={b.guide_id}
+                          guides={guides ?? []}
+                        />
+                      </td>
                       <td className="px-4 py-3 tabular-nums">{b.people}</td>
                       <td className="px-4 py-3 tabular-nums">
                         {formatPrice(b.price_cents)}

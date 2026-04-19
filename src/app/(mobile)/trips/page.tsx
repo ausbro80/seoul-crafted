@@ -145,9 +145,10 @@ function TripsSection({
           const label = tr?.title ?? x.routes?.slug ?? "Custom tour";
           const stl = STATUS_STYLE[x.status];
           return (
-            <div
+            <Link
               key={x.id}
-              className="flex gap-3 overflow-hidden rounded-2xl border bg-card p-3"
+              href={`/trips/${x.id}`}
+              className="flex gap-3 overflow-hidden rounded-2xl border bg-card p-3 transition hover:border-foreground/20"
               style={{ borderColor: "var(--border)" }}
             >
               <div
@@ -190,7 +191,7 @@ function TripsSection({
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
