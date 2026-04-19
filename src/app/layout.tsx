@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Gaegu, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
@@ -24,8 +24,28 @@ const notoSerifKR = Noto_Serif_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Seoul Crafted · Admin",
-  description: "Ops console for Seoul Crafted — routes, guides, bookings, messages.",
+  title: {
+    default: "Seoul Crafted",
+    template: "%s · Seoul Crafted",
+  },
+  description: "Curated Seoul tours, booked in minutes.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Seoul Crafted",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#C44536",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
+import { getLang, pickI18n } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export default async function BrowsePage({
   searchParams: Promise<{ tier?: string }>;
 }) {
   const { tier = "all" } = await searchParams;
+  const lang = await getLang();
   const supabase = await createClient();
 
   let query = supabase
@@ -97,7 +99,7 @@ export default async function BrowsePage({
         ) : (
           <div className="flex flex-col gap-4">
             {list.map((r) => {
-              const en = r.routes_i18n?.find((t) => t.lang === "en");
+              const tr = pickI18n(r.routes_i18n, lang);
               return (
                 <Link
                   key={r.id}
@@ -119,14 +121,14 @@ export default async function BrowsePage({
                   <div className="flex flex-1 flex-col justify-between">
                     <div>
                       <div className="font-display text-base leading-tight">
-                        {en?.title ?? r.slug}
+                        {tr?.title ?? r.slug}
                       </div>
-                      {en?.subtitle ? (
+                      {tr?.subtitle ? (
                         <div
                           className="mt-0.5 line-clamp-1 text-xs"
                           style={{ color: "var(--ink-subtle)" }}
                         >
-                          {en.subtitle}
+                          {tr.subtitle}
                         </div>
                       ) : null}
                     </div>

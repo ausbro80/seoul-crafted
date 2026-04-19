@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
+import { getLang, LANG_LABELS, pickI18n } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ type RouteCard = {
 };
 
 export default async function HomePage() {
+  const lang = await getLang();
   const supabase = await createClient();
   const { data: routes } = await supabase
     .from("routes")
@@ -54,10 +56,11 @@ export default async function HomePage() {
         </div>
         <Link
           href="/me"
-          className="rounded-full border px-3 py-1 text-xs font-medium"
+          className="flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium"
           style={{ borderColor: "var(--border)" }}
         >
-          EN
+          <span>{LANG_LABELS[lang].flag}</span>
+          <span>{lang.toUpperCase()}</span>
         </Link>
       </header>
 
@@ -185,7 +188,7 @@ export default async function HomePage() {
         ) : (
           <div className="flex flex-col gap-4">
             {list.map((r) => {
-              const en = r.routes_i18n?.find((t) => t.lang === "en");
+              const tr = pickI18n(r.routes_i18n, lang);
               return (
                 <Link
                   key={r.id}
@@ -217,14 +220,14 @@ export default async function HomePage() {
                       </div>
                     ) : null}
                     <div className="font-display text-lg leading-tight">
-                      {en?.title ?? r.slug}
+                      {tr?.title ?? r.slug}
                     </div>
-                    {en?.subtitle ? (
+                    {tr?.subtitle ? (
                       <div
                         className="mt-0.5 text-xs"
                         style={{ color: "var(--ink-subtle)" }}
                       >
-                        {en.subtitle}
+                        {tr.subtitle}
                       </div>
                     ) : null}
                     <div className="mt-3 flex items-center justify-between text-xs">

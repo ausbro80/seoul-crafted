@@ -1,15 +1,12 @@
 import Link from "next/link";
+import { getLang, LANG_LABELS, type Lang } from "@/lib/i18n";
+import { setLang } from "../_actions/lang";
 
 export const dynamic = "force-dynamic";
 
-const LANGS = [
-  { code: "en", label: "English", native: "English", flag: "🇺🇸" },
-  { code: "zh", label: "Chinese", native: "中文", flag: "🇨🇳" },
-  { code: "ja", label: "Japanese", native: "日本語", flag: "🇯🇵" },
-  { code: "vi", label: "Vietnamese", native: "Tiếng Việt", flag: "🇻🇳" },
-];
+export default async function MePage() {
+  const current = await getLang();
 
-export default function MePage() {
   return (
     <>
       <header className="px-5 pt-5">
@@ -26,7 +23,7 @@ export default function MePage() {
             className="mt-0.5 text-xs"
             style={{ color: "var(--ink-subtle)" }}
           >
-            Sign-in coming soon. For now, just browse and book.
+            Anonymous booking for now — trips are linked to your email.
           </div>
         </div>
       </section>
@@ -39,32 +36,40 @@ export default function MePage() {
           Language
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              className="flex items-center gap-2 rounded-2xl border px-3 py-3 text-left"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <span className="text-lg">{l.flag}</span>
-              <span className="flex-1">
-                <span className="block text-sm font-medium">{l.native}</span>
-                <span
-                  className="block text-[11px]"
-                  style={{ color: "var(--ink-subtle)" }}
+          {(Object.keys(LANG_LABELS) as Lang[]).map((code) => {
+            const l = LANG_LABELS[code];
+            const active = current === code;
+            return (
+              <form key={code} action={setLang}>
+                <input type="hidden" name="lang" value={code} />
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 rounded-2xl border px-3 py-3 text-left"
+                  style={{
+                    borderColor: active ? "var(--brand)" : "var(--border)",
+                    backgroundColor: active ? "var(--brand-soft)" : "transparent",
+                  }}
                 >
-                  {l.label}
-                </span>
-              </span>
-            </button>
-          ))}
+                  <span className="text-lg">{l.flag}</span>
+                  <span className="flex-1">
+                    <span
+                      className="block text-sm font-medium"
+                      style={{ color: active ? "var(--brand)" : "inherit" }}
+                    >
+                      {l.native}
+                    </span>
+                    <span
+                      className="block text-[11px]"
+                      style={{ color: "var(--ink-subtle)" }}
+                    >
+                      {l.english}
+                    </span>
+                  </span>
+                </button>
+              </form>
+            );
+          })}
         </div>
-        <p
-          className="mt-2 text-[11px]"
-          style={{ color: "var(--ink-subtle)" }}
-        >
-          Language switcher wires up in a later pass.
-        </p>
       </section>
 
       <section className="px-5 pt-6">

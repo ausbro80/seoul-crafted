@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ChevronLeft, Clock, MapPin, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
+import { getLang, pickI18n } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,7 @@ export default async function RouteDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const lang = await getLang();
   const supabase = await createClient();
   const { data: route } = await supabase
     .from("routes")
@@ -50,7 +52,7 @@ export default async function RouteDetailPage({
 
   if (!route) notFound();
 
-  const en = route.routes_i18n?.find((t) => t.lang === "en");
+  const tr = pickI18n(route.routes_i18n, lang);
   const stops = (route.route_stops ?? []).slice().sort((a, b) => a.position - b.position);
 
   return (
@@ -95,11 +97,11 @@ export default async function RouteDetailPage({
       {/* Title block */}
       <section className="space-y-1 px-5 pt-5">
         <h1 className="font-display text-2xl leading-tight">
-          {en?.title ?? route.slug}
+          {tr?.title ?? route.slug}
         </h1>
-        {en?.subtitle ? (
+        {tr?.subtitle ? (
           <p style={{ color: "var(--ink-subtle)" }} className="text-sm">
-            {en.subtitle}
+            {tr.subtitle}
           </p>
         ) : null}
         <div
@@ -121,11 +123,11 @@ export default async function RouteDetailPage({
 
       {/* Tabs (simple — Overview / Itinerary / Reviews.
           For now show Overview + Itinerary stacked; Reviews deferred.) */}
-      {en?.description ? (
+      {tr?.description ? (
         <section className="px-5 pt-5">
           <h2 className="mb-2 font-display text-lg">Overview</h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed">
-            {en.description}
+            {tr.description}
           </p>
         </section>
       ) : null}
