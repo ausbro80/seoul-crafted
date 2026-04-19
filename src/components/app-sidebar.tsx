@@ -11,6 +11,7 @@ import {
   Languages,
   ImageIcon,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 
 import {
@@ -34,6 +35,7 @@ const nav = [
   { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/content", label: "Content & i18n", icon: Languages },
   { href: "/admin/media", label: "Media library", icon: ImageIcon },
+  { href: "/admin/team", label: "Team", icon: ShieldCheck },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

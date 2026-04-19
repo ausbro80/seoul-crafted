@@ -13,6 +13,7 @@ const TITLES: Record<string, string> = {
   "/admin/messages": "Messages",
   "/admin/content": "Content & i18n",
   "/admin/media": "Media library",
+  "/admin/team": "Team",
   "/admin/settings": "Settings",
 };
 
