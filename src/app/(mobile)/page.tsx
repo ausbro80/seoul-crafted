@@ -39,18 +39,23 @@ export default async function HomePage() {
       <header className="flex items-center justify-between px-5 pt-5">
         <div className="flex items-center gap-2">
           <div
-            className="flex size-9 items-center justify-center rounded-xl font-serif text-lg text-white"
-            style={{ backgroundColor: "var(--brand)" }}
+            className="flex size-9 items-center justify-center rounded-xl text-[10px] font-extrabold text-white"
+            style={{
+              backgroundColor: "var(--brand)",
+              letterSpacing: "-0.04em",
+            }}
           >
-            서
+            D2DK
           </div>
           <div className="leading-tight">
-            <div className="text-sm font-semibold tracking-tight">Seoul Crafted</div>
+            <div className="text-sm font-semibold tracking-tight">
+              Day to Day Korea
+            </div>
             <div
               className="text-[11px]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              Tours, crafted for you
+              Live Seoul like a local
             </div>
           </div>
         </div>
@@ -67,10 +72,10 @@ export default async function HomePage() {
       {/* Hero greeting */}
       <section className="px-5 pt-6">
         <h1 className="font-display text-4xl leading-tight tracking-tight">
-          Hi, traveler.
+          Your day in Seoul,
           <br />
           <span style={{ color: "var(--ink-subtle)" }}>
-            Where shall we wander today?
+            day by day.
           </span>
         </h1>
       </section>

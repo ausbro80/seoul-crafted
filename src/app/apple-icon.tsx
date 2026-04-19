@@ -15,13 +15,13 @@ export default function AppleIcon() {
           justifyContent: "center",
           background: "#C44536",
           color: "white",
-          fontSize: 112,
-          fontFamily: "serif",
-          fontWeight: 700,
-          letterSpacing: -4,
+          fontSize: 58,
+          fontWeight: 800,
+          letterSpacing: -2,
+          fontFamily: "system-ui",
         }}
       >
-        서
+        D2DK
       </div>
     ),
     { ...size },

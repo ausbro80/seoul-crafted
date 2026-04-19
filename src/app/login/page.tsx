@@ -19,11 +19,16 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--brand)] text-white font-serif text-xl">
-            서
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--brand)] text-[12px] font-extrabold text-white"
+            style={{ letterSpacing: "-0.04em" }}
+          >
+            D2DK
           </div>
           <div className="leading-tight">
-            <div className="text-sm font-semibold tracking-tight">Seoul Crafted</div>
+            <div className="text-sm font-semibold tracking-tight">
+              Day to Day Korea
+            </div>
             <div className="text-xs text-muted-foreground">Admin console</div>
           </div>
         </div>

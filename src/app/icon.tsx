@@ -15,13 +15,13 @@ export default function Icon() {
           justifyContent: "center",
           background: "#C44536",
           color: "white",
-          fontSize: 320,
-          fontFamily: "serif",
-          fontWeight: 700,
-          letterSpacing: -12,
+          fontSize: 168,
+          fontWeight: 800,
+          letterSpacing: -8,
+          fontFamily: "system-ui",
         }}
       >
-        서
+        D2DK
       </div>
     ),
     { ...size },

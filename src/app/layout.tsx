@@ -25,14 +25,14 @@ const notoSerifKR = Noto_Serif_KR({
 
 export const metadata: Metadata = {
   title: {
-    default: "Seoul Crafted",
-    template: "%s · Seoul Crafted",
+    default: "Day to Day Korea",
+    template: "%s · Day to Day Korea",
   },
-  description: "Curated Seoul tours, booked in minutes.",
+  description: "Day to Day Korea — live Seoul like a local, one day at a time.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Seoul Crafted",
+    title: "D2DK",
   },
   formatDetection: {
     telephone: false,

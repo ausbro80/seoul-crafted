@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Seoul Crafted",
-    short_name: "Seoul Crafted",
-    description: "Curated Seoul tours, booked in minutes.",
+    name: "Day to Day Korea",
+    short_name: "D2DK",
+    description: "Day to Day Korea — live Seoul like a local, one day at a time.",
     start_url: "/",
     scope: "/",
     display: "standalone",

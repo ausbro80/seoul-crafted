@@ -44,11 +44,16 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <Link href="/admin" className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand)] text-white font-serif text-lg">
-            서
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand)] text-[11px] font-extrabold tracking-tight text-white"
+            style={{ letterSpacing: "-0.04em" }}
+          >
+            D2DK
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-semibold tracking-tight">Seoul Crafted</span>
+            <span className="text-sm font-semibold tracking-tight">
+              Day to Day Korea
+            </span>
             <span className="text-xs text-muted-foreground">Admin console</span>
           </div>
         </Link>
