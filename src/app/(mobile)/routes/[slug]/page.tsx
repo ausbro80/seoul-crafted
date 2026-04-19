@@ -4,6 +4,7 @@ import { ChevronLeft, Clock, MapPin, Heart } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { getLang, pickI18n } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +126,9 @@ export default async function RouteDetailPage({
           For now show Overview + Itinerary stacked; Reviews deferred.) */}
       {tr?.description ? (
         <section className="px-5 pt-5">
-          <h2 className="mb-2 font-display text-lg">Overview</h2>
+          <h2 className="mb-2 font-display text-lg">
+            {t(lang, "detail_overview")}
+          </h2>
           <p className="whitespace-pre-wrap text-sm leading-relaxed">
             {tr.description}
           </p>
@@ -134,7 +137,9 @@ export default async function RouteDetailPage({
 
       {stops.length > 0 ? (
         <section className="px-5 pt-6">
-          <h2 className="mb-3 font-display text-lg">Itinerary</h2>
+          <h2 className="mb-3 font-display text-lg">
+            {t(lang, "detail_itinerary")}
+          </h2>
           <ol className="space-y-3">
             {stops.map((s) => (
               <li key={s.position} className="flex gap-3">
@@ -210,7 +215,7 @@ export default async function RouteDetailPage({
           >
             <div className="pl-2">
               <div className="text-[11px]" style={{ color: "var(--ink-subtle)" }}>
-                From
+                {t(lang, "detail_from")}
               </div>
               <div className="font-display text-xl leading-none">
                 {formatPrice(route.price_cents)}
@@ -221,7 +226,7 @@ export default async function RouteDetailPage({
               className="rounded-xl px-5 py-3 text-sm font-semibold text-white"
               style={{ backgroundColor: "var(--brand)" }}
             >
-              Book now
+              {t(lang, "detail_book_now")}
             </Link>
           </div>
         </div>

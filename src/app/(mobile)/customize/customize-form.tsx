@@ -2,30 +2,34 @@
 
 import { useActionState, useState } from "react";
 import { createCustomIntake, type BookingFormState } from "../_actions/booking";
+import type { Lang } from "@/lib/i18n";
+import { t, type StringKey } from "@/lib/ui-strings";
 
-const INTERESTS = [
-  { id: "culture", label: "Culture", emoji: "🏯" },
-  { id: "food", label: "Food", emoji: "🍲" },
-  { id: "nature", label: "Nature", emoji: "🌿" },
-  { id: "shopping", label: "Shopping", emoji: "🛍️" },
-  { id: "nightlife", label: "Nightlife", emoji: "🌙" },
-  { id: "family", label: "Family", emoji: "👨‍👩‍👧" },
-  { id: "photo", label: "Photo", emoji: "📷" },
-  { id: "craft", label: "Craft", emoji: "🧵" },
+const INTERESTS: { id: string; labelKey: StringKey; emoji: string }[] = [
+  { id: "culture", labelKey: "interest_culture", emoji: "🏯" },
+  { id: "food", labelKey: "interest_food", emoji: "🍲" },
+  { id: "nature", labelKey: "interest_nature", emoji: "🌿" },
+  { id: "shopping", labelKey: "interest_shopping", emoji: "🛍️" },
+  { id: "nightlife", labelKey: "interest_nightlife", emoji: "🌙" },
+  { id: "family", labelKey: "interest_family", emoji: "👨‍👩‍👧" },
+  { id: "photo", labelKey: "interest_photo", emoji: "📷" },
+  { id: "craft", labelKey: "interest_craft", emoji: "🧵" },
 ];
 
-const PACES = [
-  { value: "relaxed", label: "Relaxed", sub: "Few stops, long breaks" },
-  { value: "balanced", label: "Balanced", sub: "Steady pace" },
-  { value: "packed", label: "Packed", sub: "See as much as possible" },
+const PACES: { value: string; labelKey: StringKey; subKey: StringKey }[] = [
+  { value: "relaxed", labelKey: "pace_relaxed_label", subKey: "pace_relaxed_sub" },
+  { value: "balanced", labelKey: "pace_balanced_label", subKey: "pace_balanced_sub" },
+  { value: "packed", labelKey: "pace_packed_label", subKey: "pace_packed_sub" },
 ];
 
 export function CustomizeForm({
   mode,
   defaultEmail,
+  lang,
 }: {
   mode: "guided" | "route-only";
   defaultEmail?: string;
+  lang: Lang;
 }) {
   const [state, formAction, pending] = useActionState<BookingFormState, FormData>(
     createCustomIntake,
@@ -41,7 +45,7 @@ export function CustomizeForm({
     );
 
   const cta =
-    mode === "guided" ? "Match me with a guide →" : "See my route — $18";
+    mode === "guided" ? t(lang, "cta_match_guide") : t(lang, "cta_see_route");
 
   return (
     <form action={formAction} className="space-y-7 pb-10">
@@ -52,9 +56,8 @@ export function CustomizeForm({
       <input type="hidden" name="pace" value={pace} />
       <input type="hidden" name="people" value={people} />
 
-      {/* Step 1 — Date */}
       <section>
-        <SectionLabel step={1} title="When?" />
+        <SectionLabel step={1} title={t(lang, "step_when")} stepWord={t(lang, "step")} />
         <input
           name="date"
           type="date"
@@ -63,9 +66,8 @@ export function CustomizeForm({
         />
       </section>
 
-      {/* Step 2 — People */}
       <section>
-        <SectionLabel step={2} title="How many?" />
+        <SectionLabel step={2} title={t(lang, "step_how_many")} stepWord={t(lang, "step")} />
         <div
           className="mt-2 flex items-center justify-between rounded-xl border bg-card px-3 py-3"
           style={{ borderColor: "var(--border)" }}
@@ -84,7 +86,7 @@ export function CustomizeForm({
               className="text-[11px]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              {people === 1 ? "traveler" : "travelers"}
+              {people === 1 ? t(lang, "traveler") : t(lang, "travelers")}
             </div>
           </div>
           <button
@@ -98,12 +100,12 @@ export function CustomizeForm({
         </div>
       </section>
 
-      {/* Step 3 — Interests */}
       <section>
         <SectionLabel
           step={3}
-          title="What grabs you?"
-          sub={`Pick 3–4 (${interests.length}/4)`}
+          title={t(lang, "step_interests")}
+          sub={`${t(lang, "step_interests_sub")} (${interests.length}/4)`}
+          stepWord={t(lang, "step")}
         />
         <div className="mt-2 grid grid-cols-2 gap-2">
           {INTERESTS.map((i) => {
@@ -121,16 +123,15 @@ export function CustomizeForm({
                 }}
               >
                 <span>{i.emoji}</span>
-                <span className="font-medium">{i.label}</span>
+                <span className="font-medium">{t(lang, i.labelKey)}</span>
               </button>
             );
           })}
         </div>
       </section>
 
-      {/* Step 4 — Pace */}
       <section>
-        <SectionLabel step={4} title="What pace?" />
+        <SectionLabel step={4} title={t(lang, "step_pace")} stepWord={t(lang, "step")} />
         <div className="mt-2 grid grid-cols-3 gap-2">
           {PACES.map((p) => {
             const active = pace === p.value;
@@ -149,13 +150,13 @@ export function CustomizeForm({
                   className="text-sm font-medium"
                   style={{ color: active ? "var(--brand)" : "inherit" }}
                 >
-                  {p.label}
+                  {t(lang, p.labelKey)}
                 </div>
                 <div
                   className="mt-0.5 text-[10px] leading-tight"
                   style={{ color: "var(--ink-subtle)" }}
                 >
-                  {p.sub}
+                  {t(lang, p.subKey)}
                 </div>
               </button>
             );
@@ -163,22 +164,21 @@ export function CustomizeForm({
         </div>
       </section>
 
-      {/* Contact */}
       <section>
-        <SectionLabel step={5} title="How do we reach you?" />
+        <SectionLabel step={5} title={t(lang, "step_contact")} stepWord={t(lang, "step")} />
         <div className="mt-2 space-y-2">
           <input
             name="email"
             type="email"
             required
             defaultValue={defaultEmail}
-            placeholder="Email"
+            placeholder={t(lang, "field_email")}
             className="w-full rounded-xl border bg-card px-3 py-2.5 text-sm"
             style={{ borderColor: "var(--border)" }}
           />
           <input
             name="name"
-            placeholder="Name (optional)"
+            placeholder={t(lang, "field_name_optional")}
             className="w-full rounded-xl border bg-card px-3 py-2.5 text-sm"
             style={{ borderColor: "var(--border)" }}
           />
@@ -197,7 +197,7 @@ export function CustomizeForm({
         className="w-full rounded-xl py-3.5 text-sm font-semibold text-white disabled:opacity-60"
         style={{ backgroundColor: "var(--brand)" }}
       >
-        {pending ? "Submitting…" : cta}
+        {pending ? t(lang, "submitting") : cta}
       </button>
     </form>
   );
@@ -207,10 +207,12 @@ function SectionLabel({
   step,
   title,
   sub,
+  stepWord,
 }: {
   step: number;
   title: string;
   sub?: string;
+  stepWord: string;
 }) {
   return (
     <div className="flex items-end justify-between">
@@ -219,15 +221,12 @@ function SectionLabel({
           className="text-[11px] uppercase tracking-[0.18em]"
           style={{ color: "var(--ink-subtle)" }}
         >
-          Step {step}
+          {stepWord} {step}
         </div>
         <h3 className="font-display text-lg leading-tight">{title}</h3>
       </div>
       {sub ? (
-        <span
-          className="text-[11px]"
-          style={{ color: "var(--ink-subtle)" }}
-        >
+        <span className="text-[11px]" style={{ color: "var(--ink-subtle)" }}>
           {sub}
         </span>
       ) : null}

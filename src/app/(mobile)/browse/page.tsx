@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { getLang, pickI18n } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,6 @@ type RouteCard = {
   routes_i18n: { lang: string; title: string | null; subtitle: string | null }[] | null;
 };
 
-const TIER_CHIPS = [
-  { value: "all", label: "All" },
-  { value: "curated", label: "Curated" },
-  { value: "guided_custom", label: "Guided" },
-  { value: "route_only", label: "Route only" },
-];
-
 export default async function BrowsePage({
   searchParams,
 }: {
@@ -34,6 +28,13 @@ export default async function BrowsePage({
   const { tier = "all" } = await searchParams;
   const lang = await getLang();
   const supabase = await createClient();
+
+  const chips: { value: string; label: string }[] = [
+    { value: "all", label: t(lang, "filter_all") },
+    { value: "curated", label: t(lang, "filter_curated") },
+    { value: "guided_custom", label: t(lang, "filter_guided") },
+    { value: "route_only", label: t(lang, "filter_route_only") },
+  ];
 
   let query = supabase
     .from("routes")
@@ -57,15 +58,16 @@ export default async function BrowsePage({
           href="/"
           className="flex size-9 items-center justify-center rounded-full border"
           style={{ borderColor: "var(--border)" }}
+          aria-label={t(lang, "back")}
         >
           <ChevronLeft className="size-4" />
         </Link>
-        <h1 className="font-display text-2xl">Browse routes</h1>
+        <h1 className="font-display text-2xl">{t(lang, "browse_title")}</h1>
       </header>
 
       <div className="overflow-x-auto px-5 pt-4">
         <div className="flex gap-2">
-          {TIER_CHIPS.map((c) => {
+          {chips.map((c) => {
             const active = tier === c.value;
             return (
               <Link
@@ -94,7 +96,7 @@ export default async function BrowsePage({
               color: "var(--ink-subtle)",
             }}
           >
-            Nothing here yet.
+            {t(lang, "browse_empty")}
           </div>
         ) : (
           <div className="flex flex-col gap-4">

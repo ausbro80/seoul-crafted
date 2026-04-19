@@ -4,6 +4,8 @@ import { ChevronLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getTravelerEmail } from "../_actions/booking";
 import { CheckoutForm } from "./checkout-form";
+import { getLang, pickI18n } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +38,8 @@ export default async function CheckoutPage({
 
   if (!route) notFound();
 
-  const en = route.routes_i18n?.find((t) => t.lang === "en");
+  const lang = await getLang();
+  const tr = pickI18n(route.routes_i18n, lang);
   const email = await getTravelerEmail();
 
   return (
@@ -46,10 +49,11 @@ export default async function CheckoutPage({
           href={`/routes/${route.slug}`}
           className="flex size-9 items-center justify-center rounded-full border"
           style={{ borderColor: "var(--border)" }}
+          aria-label={t(lang, "back")}
         >
           <ChevronLeft className="size-4" />
         </Link>
-        <h1 className="font-display text-2xl">Checkout</h1>
+        <h1 className="font-display text-2xl">{t(lang, "checkout_title")}</h1>
       </header>
 
       <section className="px-5 pt-5">
@@ -73,10 +77,10 @@ export default async function CheckoutPage({
               className="text-[11px] uppercase tracking-[0.14em]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              Tour
+              {t(lang, "checkout_tour")}
             </div>
             <div className="font-display text-base leading-tight">
-              {en?.title ?? route.slug}
+              {tr?.title ?? route.slug}
             </div>
           </div>
         </div>
@@ -87,6 +91,7 @@ export default async function CheckoutPage({
           routeSlug={route.slug}
           pricePerPerson={route.price_cents}
           defaultEmail={email ?? undefined}
+          lang={lang}
         />
       </section>
     </>

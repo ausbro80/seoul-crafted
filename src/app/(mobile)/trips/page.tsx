@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
 import { getTravelerEmail } from "../_actions/booking";
+import { getLang, pickI18n, type Lang } from "@/lib/i18n";
+import { t, type StringKey } from "@/lib/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -21,11 +23,11 @@ type TripRow = {
   } | null;
 };
 
-const STATUS_STYLE: Record<string, { bg: string; fg: string; label: string }> = {
-  pending: { bg: "#F5E9CF", fg: "#9A7418", label: "Pending" },
-  confirmed: { bg: "#DCEBE5", fg: "#2F855A", label: "Confirmed" },
-  completed: { bg: "#F3ECE1", fg: "#6B5F4E", label: "Completed" },
-  cancelled: { bg: "#F4DDD7", fg: "#C44536", label: "Cancelled" },
+const STATUS_STYLE: Record<string, { bg: string; fg: string; labelKey: StringKey }> = {
+  pending: { bg: "#F5E9CF", fg: "#9A7418", labelKey: "status_pending" },
+  confirmed: { bg: "#DCEBE5", fg: "#2F855A", labelKey: "status_confirmed" },
+  completed: { bg: "#F3ECE1", fg: "#6B5F4E", labelKey: "status_completed" },
+  cancelled: { bg: "#F4DDD7", fg: "#C44536", labelKey: "status_cancelled" },
 };
 
 export default async function TripsPage({
@@ -35,6 +37,7 @@ export default async function TripsPage({
 }) {
   const { new: isNew } = await searchParams;
   const email = await getTravelerEmail();
+  const lang = await getLang();
 
   const supabase = await createClient();
   let trips: TripRow[] = [];
@@ -51,16 +54,16 @@ export default async function TripsPage({
   }
 
   const upcoming = trips.filter(
-    (t) => t.status === "pending" || t.status === "confirmed",
+    (x) => x.status === "pending" || x.status === "confirmed",
   );
   const past = trips.filter(
-    (t) => t.status === "completed" || t.status === "cancelled",
+    (x) => x.status === "completed" || x.status === "cancelled",
   );
 
   return (
     <>
       <header className="px-5 pt-5">
-        <h1 className="font-display text-3xl">My trips</h1>
+        <h1 className="font-display text-3xl">{t(lang, "trips_title")}</h1>
         {email ? (
           <p
             className="mt-1 text-xs"
@@ -80,7 +83,7 @@ export default async function TripsPage({
               color: "var(--jade)",
             }}
           >
-            Reserved ✓ — our team will confirm by email.
+            {t(lang, "trips_reserved")}
           </div>
         </section>
       ) : null}
@@ -94,13 +97,13 @@ export default async function TripsPage({
               color: "var(--ink-subtle)",
             }}
           >
-            No trips yet.{" "}
+            {t(lang, "trips_empty")}{" "}
             <Link
               href="/browse"
               className="font-medium"
               style={{ color: "var(--brand)" }}
             >
-              Browse routes
+              {t(lang, "trips_browse")}
             </Link>
             .
           </div>
@@ -108,10 +111,10 @@ export default async function TripsPage({
       ) : (
         <>
           {upcoming.length > 0 ? (
-            <TripsSection title="Upcoming" trips={upcoming} />
+            <TripsSection title={t(lang, "trips_upcoming")} trips={upcoming} lang={lang} />
           ) : null}
           {past.length > 0 ? (
-            <TripsSection title="Past" trips={past} />
+            <TripsSection title={t(lang, "trips_past")} trips={past} lang={lang} />
           ) : null}
         </>
       )}
@@ -119,7 +122,15 @@ export default async function TripsPage({
   );
 }
 
-function TripsSection({ title, trips }: { title: string; trips: TripRow[] }) {
+function TripsSection({
+  title,
+  trips,
+  lang,
+}: {
+  title: string;
+  trips: TripRow[];
+  lang: Lang;
+}) {
   return (
     <section className="px-5 pt-6">
       <h2
@@ -129,22 +140,22 @@ function TripsSection({ title, trips }: { title: string; trips: TripRow[] }) {
         {title}
       </h2>
       <div className="flex flex-col gap-3">
-        {trips.map((t) => {
-          const en = t.routes?.routes_i18n?.find((x) => x.lang === "en");
-          const label = en?.title ?? t.routes?.slug ?? "Custom tour";
-          const stl = STATUS_STYLE[t.status];
+        {trips.map((x) => {
+          const tr = pickI18n(x.routes?.routes_i18n, lang);
+          const label = tr?.title ?? x.routes?.slug ?? "Custom tour";
+          const stl = STATUS_STYLE[x.status];
           return (
             <div
-              key={t.id}
+              key={x.id}
               className="flex gap-3 overflow-hidden rounded-2xl border bg-card p-3"
               style={{ borderColor: "var(--border)" }}
             >
               <div
                 className="size-20 flex-shrink-0 rounded-xl"
                 style={{
-                  backgroundColor: t.routes?.theme_color ?? "var(--muted)",
-                  backgroundImage: t.routes?.hero_image_url
-                    ? `url(${t.routes.hero_image_url})`
+                  backgroundColor: x.routes?.theme_color ?? "var(--muted)",
+                  backgroundImage: x.routes?.hero_image_url
+                    ? `url(${x.routes.hero_image_url})`
                     : undefined,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -159,19 +170,23 @@ function TripsSection({ title, trips }: { title: string; trips: TripRow[] }) {
                     className="mt-0.5 text-xs"
                     style={{ color: "var(--ink-subtle)" }}
                   >
-                    {t.booking_date ?? "Date TBD"} · {t.people}{" "}
-                    {t.people === 1 ? "person" : "people"}
+                    {x.booking_date ?? t(lang, "trip_date_tbd")} · {x.people}{" "}
+                    {x.people === 1 ? t(lang, "trip_person") : t(lang, "trip_people")}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span
-                    className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em]"
-                    style={{ backgroundColor: stl.bg, color: stl.fg }}
-                  >
-                    {stl.label}
-                  </span>
+                  {stl ? (
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em]"
+                      style={{ backgroundColor: stl.bg, color: stl.fg }}
+                    >
+                      {t(lang, stl.labelKey)}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
                   <span className="text-xs font-semibold">
-                    {formatPrice(t.price_cents)}
+                    {formatPrice(x.price_cents)}
                   </span>
                 </div>
               </div>

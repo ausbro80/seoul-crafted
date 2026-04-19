@@ -1,16 +1,14 @@
+import { getLang } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
+
 export const dynamic = "force-dynamic";
 
-export default function ChatPage() {
+export default async function ChatPage() {
+  const lang = await getLang();
   return (
     <>
       <header className="px-5 pt-5">
-        <h1 className="font-display text-3xl">Chat</h1>
-        <p
-          className="mt-1 text-sm"
-          style={{ color: "var(--ink-subtle)" }}
-        >
-          Guide and support threads will appear here once you have a booking.
-        </p>
+        <h1 className="font-display text-3xl">{t(lang, "chat_title")}</h1>
       </header>
       <section className="px-5 pt-6">
         <div
@@ -20,7 +18,7 @@ export default function ChatPage() {
             color: "var(--ink-subtle)",
           }}
         >
-          No messages yet.
+          {t(lang, "chat_empty")}
         </div>
       </section>
     </>

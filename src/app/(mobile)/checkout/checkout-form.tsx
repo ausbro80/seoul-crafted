@@ -2,15 +2,19 @@
 
 import { useActionState, useState } from "react";
 import { createCuratedBooking, type BookingFormState } from "../_actions/booking";
+import type { Lang } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
 
 export function CheckoutForm({
   routeSlug,
   pricePerPerson,
   defaultEmail,
+  lang,
 }: {
   routeSlug: string;
   pricePerPerson: number; // cents
   defaultEmail?: string;
+  lang: Lang;
 }) {
   const [state, formAction, pending] = useActionState<BookingFormState, FormData>(
     createCuratedBooking,
@@ -31,7 +35,7 @@ export function CheckoutForm({
 
       <div className="space-y-1.5">
         <label htmlFor="email" className="text-xs font-medium">
-          Email
+          {t(lang, "field_email")}
         </label>
         <input
           id="email"
@@ -47,7 +51,7 @@ export function CheckoutForm({
 
       <div className="space-y-1.5">
         <label htmlFor="name" className="text-xs font-medium">
-          Name (optional)
+          {t(lang, "field_name_optional")}
         </label>
         <input
           id="name"
@@ -59,7 +63,7 @@ export function CheckoutForm({
 
       <div className="space-y-1.5">
         <label htmlFor="date" className="text-xs font-medium">
-          Date
+          {t(lang, "field_date")}
         </label>
         <input
           id="date"
@@ -71,7 +75,7 @@ export function CheckoutForm({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium">People</label>
+        <label className="text-xs font-medium">{t(lang, "field_people")}</label>
         <div
           className="flex items-center justify-between rounded-xl border bg-card px-3 py-2.5"
           style={{ borderColor: "var(--border)" }}
@@ -103,28 +107,28 @@ export function CheckoutForm({
       >
         <div className="flex justify-between">
           <span style={{ color: "var(--ink-subtle)" }}>
-            Tour × {people}
+            {t(lang, "checkout_tour_line")} {people}
           </span>
           <span>{fmt(total)}</span>
         </div>
         <div className="mt-1 flex justify-between text-xs">
-          <span style={{ color: "var(--ink-subtle)" }}>Booking fee</span>
+          <span style={{ color: "var(--ink-subtle)" }}>
+            {t(lang, "checkout_fee")}
+          </span>
           <span style={{ color: "var(--ink-subtle)" }}>$0</span>
         </div>
         <div
           className="mt-3 flex justify-between border-t pt-3 font-semibold"
           style={{ borderColor: "var(--border)" }}
         >
-          <span>Total</span>
+          <span>{t(lang, "checkout_total")}</span>
           <span>{fmt(total)}</span>
         </div>
         <p
           className="mt-3 text-[11px]"
           style={{ color: "var(--ink-subtle)" }}
         >
-          Free cancellation up to 24h before. Payment integration lands in a
-          later pass — for now, your booking is reserved and our team will
-          follow up.
+          {t(lang, "checkout_note")}
         </p>
       </div>
 
@@ -140,7 +144,9 @@ export function CheckoutForm({
         className="w-full rounded-xl py-3.5 text-sm font-semibold text-white disabled:opacity-60"
         style={{ backgroundColor: "var(--brand)" }}
       >
-        {pending ? "Reserving…" : `Reserve — ${fmt(total)}`}
+        {pending
+          ? t(lang, "checkout_reserving")
+          : `${t(lang, "checkout_reserve")} — ${fmt(total)}`}
       </button>
     </form>
   );

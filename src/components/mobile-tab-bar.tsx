@@ -4,14 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Compass, MessageCircle, User } from "lucide-react";
 
+type Props = {
+  labels: { home: string; trips: string; chat: string; me: string };
+};
+
 const TABS = [
-  { href: "/", label: "Home", icon: Home, match: (p: string) => p === "/" || p === "/browse" || p.startsWith("/routes/") },
-  { href: "/trips", label: "Trips", icon: Compass, match: (p: string) => p.startsWith("/trips") },
-  { href: "/chat", label: "Chat", icon: MessageCircle, match: (p: string) => p.startsWith("/chat") },
-  { href: "/me", label: "Me", icon: User, match: (p: string) => p.startsWith("/me") },
+  {
+    href: "/",
+    key: "home" as const,
+    icon: Home,
+    match: (p: string) =>
+      p === "/" || p === "/browse" || p.startsWith("/routes/") || p.startsWith("/customize") || p.startsWith("/checkout"),
+  },
+  { href: "/trips", key: "trips" as const, icon: Compass, match: (p: string) => p.startsWith("/trips") },
+  { href: "/chat", key: "chat" as const, icon: MessageCircle, match: (p: string) => p.startsWith("/chat") },
+  { href: "/me", key: "me" as const, icon: User, match: (p: string) => p.startsWith("/me") },
 ];
 
-export function MobileTabBar() {
+export function MobileTabBar({ labels }: Props) {
   const pathname = usePathname();
 
   return (
@@ -33,7 +43,7 @@ export function MobileTabBar() {
               }}
             >
               <Icon className="size-5" strokeWidth={active ? 2.2 : 1.8} />
-              <span className="font-display">{t.label}</span>
+              <span className="font-display">{labels[t.key]}</span>
             </Link>
           );
         })}

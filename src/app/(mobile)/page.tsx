@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuration, formatPrice } from "@/lib/format";
 import { getLang, LANG_LABELS, pickI18n } from "@/lib/i18n";
+import { t } from "@/lib/ui-strings";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +56,7 @@ export default async function HomePage() {
               className="text-[11px]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              Live Seoul like a local
+              {t(lang, "brand_tagline")}
             </div>
           </div>
         </div>
@@ -72,10 +73,10 @@ export default async function HomePage() {
       {/* Hero greeting */}
       <section className="px-5 pt-6">
         <h1 className="font-display text-4xl leading-tight tracking-tight">
-          Your day in Seoul,
+          {t(lang, "home_hero_1")}
           <br />
           <span style={{ color: "var(--ink-subtle)" }}>
-            day by day.
+            {t(lang, "home_hero_2")}
           </span>
         </h1>
       </section>
@@ -88,19 +89,19 @@ export default async function HomePage() {
           style={{ borderColor: "var(--border)", color: "var(--ink-subtle)" }}
         >
           <Search className="size-4" />
-          <span>Search routes, neighborhoods, food…</span>
+          <span>{t(lang, "home_search_placeholder")}</span>
         </Link>
       </section>
 
       {/* Category cards */}
       <section className="px-5 pt-6">
         <div className="mb-3 flex items-end justify-between">
-          <h2 className="font-display text-xl">Start here</h2>
+          <h2 className="font-display text-xl">{t(lang, "home_start_here")}</h2>
           <span
             className="text-[11px]"
             style={{ color: "var(--ink-subtle)" }}
           >
-            3 ways to go
+            {t(lang, "home_3_ways")}
           </span>
         </div>
         <Link
@@ -110,13 +111,14 @@ export default async function HomePage() {
         >
           <div className="relative z-10 p-5 text-white">
             <div className="text-[11px] uppercase tracking-[0.18em] opacity-80">
-              Curated
+              {t(lang, "cat_curated")}
             </div>
-            <div className="mt-1 font-display text-2xl leading-tight">
-              Pre-designed
-              <br />3-hour tours
+            <div className="mt-1 whitespace-pre-line font-display text-2xl leading-tight">
+              {t(lang, "cat_curated_title")}
             </div>
-            <div className="mt-2 text-xs opacity-80">From $42 · Book and go</div>
+            <div className="mt-2 text-xs opacity-80">
+              {t(lang, "cat_curated_sub")}
+            </div>
           </div>
           <LatticePattern />
         </Link>
@@ -130,17 +132,16 @@ export default async function HomePage() {
               className="text-[11px] uppercase tracking-[0.18em]"
               style={{ color: "var(--jade)" }}
             >
-              Guided
+              {t(lang, "cat_guided")}
             </div>
-            <div className="mt-1 font-display text-lg leading-tight">
-              Plan with
-              <br />a guide
+            <div className="mt-1 whitespace-pre-line font-display text-lg leading-tight">
+              {t(lang, "cat_guided_title")}
             </div>
             <div
               className="mt-2 text-[11px]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              ~$120 · 5h max
+              {t(lang, "cat_guided_sub")}
             </div>
           </Link>
           <Link
@@ -152,17 +153,16 @@ export default async function HomePage() {
               className="text-[11px] uppercase tracking-[0.18em]"
               style={{ color: "var(--gold)" }}
             >
-              Route only
+              {t(lang, "cat_route")}
             </div>
-            <div className="mt-1 font-display text-lg leading-tight">
-              We make
-              <br />the map
+            <div className="mt-1 whitespace-pre-line font-display text-lg leading-tight">
+              {t(lang, "cat_route_title")}
             </div>
             <div
               className="mt-2 text-[11px]"
               style={{ color: "var(--ink-subtle)" }}
             >
-              $18 · No time limit
+              {t(lang, "cat_route_sub")}
             </div>
           </Link>
         </div>
@@ -171,13 +171,13 @@ export default async function HomePage() {
       {/* Popular routes */}
       <section className="px-5 py-6">
         <div className="mb-3 flex items-end justify-between">
-          <h2 className="font-display text-xl">Popular now</h2>
+          <h2 className="font-display text-xl">{t(lang, "home_popular")}</h2>
           <Link
             href="/browse"
             className="text-xs font-medium"
             style={{ color: "var(--brand)" }}
           >
-            See all →
+            {t(lang, "home_see_all")}
           </Link>
         </div>
         {list.length === 0 ? (
@@ -188,7 +188,7 @@ export default async function HomePage() {
               color: "var(--ink-subtle)",
             }}
           >
-            No routes published yet. Admin will add some soon.
+            {t(lang, "home_no_routes")}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
