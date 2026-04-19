@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Gaegu, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
+import { RouteProgress } from "@/components/route-progress";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -58,7 +60,12 @@ export default function RootLayout({
       lang="en"
       className={`${jakarta.variable} ${gaegu.variable} ${notoSerifKR.variable} h-full`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
+        {children}
+      </body>
     </html>
   );
 }

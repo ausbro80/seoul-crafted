@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { sendCustomerMessage } from "./actions";
+import { Button } from "@/components/ui/button";
+import { sendAdminReply } from "./actions";
 
-export function Composer({
+export function ReplyComposer({
+  conversationId,
   channel,
   placeholder,
-  sendLabel,
 }: {
+  conversationId: string;
   channel: "guide" | "support";
   placeholder: string;
-  sendLabel: string;
 }) {
   const [value, setValue] = useState("");
   const [pending, startTransition] = useTransition();
@@ -20,48 +21,35 @@ export function Composer({
     const trimmed = value.trim();
     if (pending || !trimmed) return;
 
-    // Clear the input immediately so the user has visible feedback even
-    // while translation + realtime broadcast complete (1–2s with MyMemory).
     setValue("");
 
     const fd = new FormData();
-    fd.set("channel", channel);
+    fd.set("sender_role", channel);
     fd.set("body", trimmed);
 
     startTransition(async () => {
       try {
-        await sendCustomerMessage(fd);
+        await sendAdminReply(conversationId, fd);
       } catch {
-        // On failure, put the text back so they can retry.
         setValue(trimmed);
       }
     });
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="sticky bottom-0 flex gap-2 border-t bg-card p-3"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <form onSubmit={handleSubmit} className="flex gap-2 border-t p-3">
       <input
         name="body"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
         className="flex-1 rounded-full border bg-background px-4 py-2 text-sm disabled:opacity-60"
-        style={{ borderColor: "var(--border)" }}
         autoComplete="off"
         disabled={pending}
       />
-      <button
-        type="submit"
-        disabled={pending || value.trim().length === 0}
-        className="rounded-full px-4 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
-        style={{ backgroundColor: "var(--brand)" }}
-      >
-        {pending ? "…" : sendLabel}
-      </button>
+      <Button type="submit" disabled={pending || value.trim().length === 0}>
+        {pending ? "…" : "Send"}
+      </Button>
     </form>
   );
 }

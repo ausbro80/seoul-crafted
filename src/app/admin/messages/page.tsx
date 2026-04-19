@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
-import { sendAdminReply, markConversationRead } from "./actions";
+import { markConversationRead } from "./actions";
 import { ChatLive, EnableNotificationsButton } from "@/components/chat-live";
 import { PushSubscribe } from "@/components/push-subscribe";
+import { ReplyComposer } from "./reply-composer";
 
 export const dynamic = "force-dynamic";
 
@@ -235,23 +236,11 @@ export default async function MessagesPage({
                   </div>
                 )}
               </div>
-              <form
-                action={sendAdminReply.bind(null, selected.id)}
-                className="flex gap-2 border-t p-3"
-              >
-                <input
-                  type="hidden"
-                  name="sender_role"
-                  value={selected.channel}
-                />
-                <input
-                  name="body"
-                  placeholder={`${selected.channel}로 답장 (한국어)…`}
-                  className="flex-1 rounded-full border bg-background px-4 py-2 text-sm"
-                  autoComplete="off"
-                />
-                <Button type="submit">Send</Button>
-              </form>
+              <ReplyComposer
+                conversationId={selected.id}
+                channel={selected.channel}
+                placeholder={`${selected.channel}로 답장 (한국어)…`}
+              />
             </div>
           )}
         </Card>
