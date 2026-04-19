@@ -42,3 +42,6 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Local-only Postgres connection string for scripts/apply-migration.mjs
+.env.migrations
